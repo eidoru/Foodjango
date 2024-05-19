@@ -1,5 +1,7 @@
 from django import forms
+from rest_framework.authtoken.models import Token
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+
 
 from . import models
 
