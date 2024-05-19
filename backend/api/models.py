@@ -1,14 +1,23 @@
 from django.db import models
 from django.conf import settings
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+
+
 class UserManager(BaseUserManager):
-    def create_user(self, username, password=None, first_name="", last_name=""):
+    def create_user(self, username, password=None, first_name="", last_name="", role=""):
         if username is None:
             raise TypeError("Users must have a username.")
         user = self.model(username=username,
-                          first_name=first_name, last_name=last_name)
+                          first_name=first_name, last_name=last_name, role=role)
         user.set_password(password)
         user.save()
         return user
@@ -66,10 +75,12 @@ class MenuItem(models.Model):
 
 
 class Cart(models.Model):
-    customer = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer')
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00)
+    customer = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="customer")
+    restaurant = models.OneToOneField(
+        Restaurant, on_delete=models.CASCADE, related_name="restaurant")
 
 
 class CartItem(models.Model):
@@ -79,16 +90,16 @@ class CartItem(models.Model):
 
 
 class Order(models.Model):
-    STATUS_PENDING = 'pending'
-    STATUS_IN_PROGRESS = 'in_progress'
-    STATUS_COMPLETE = 'complete'
+    STATUS_PENDING = "pending"
+    STATUS_IN_PROGRESS = "in_progress"
+    STATUS_COMPLETE = "complete"
     STATUS_CHOICES = [
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_IN_PROGRESS, 'In Progress'),
-        (STATUS_COMPLETE, 'Complete'),
+        (STATUS_PENDING, "Pending"),
+        (STATUS_IN_PROGRESS, "In Progress"),
+        (STATUS_COMPLETE, "Complete"),
     ]
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=100, choices=STATUS_CHOICES, default=STATUS_PENDING)
     courier = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='courier')
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="courier")
