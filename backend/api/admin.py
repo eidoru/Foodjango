@@ -17,7 +17,7 @@ class UserAdmin(admin.ModelAdmin):
 
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Restaurant)
-admin.site.register(models.MenuItem)
+admin.site.register(models.RestaurantItem)
 admin.site.register(models.Cart)
 admin.site.register(models.CartItem)
 admin.site.register(models.Order)

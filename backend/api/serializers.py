@@ -3,7 +3,7 @@ from rest_framework import serializers
 from . import models
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = ["username", "password", "first_name", "last_name", "role"]
@@ -13,21 +13,15 @@ class SignUpSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.User
-        fields = ["username", "first_name", "last_name", "role"]
-
-
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Restaurant
         fields = ["name"]
 
 
-class MenuItemSerializer(serializers.ModelSerializer):
+class RestaurantItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.MenuItem
+        model = models.RestaurantItem
         fields = ["name", "price"]
 
 
@@ -40,10 +34,16 @@ class CartSerializer(serializers.ModelSerializer):
 class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CartItem
-        fields = ["quantity", "menu_item"]
+        fields = ["quantity", "restaurant_item"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
-        fields = ["status"]
+        fields = ["price", "status"]
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OrderItem
+        fields = ["price", "quantity", "restaurant_item"]

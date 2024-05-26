@@ -28,21 +28,18 @@ class UserManager(BaseUserManager):
         user = self.create_user(username, password, first_name, last_name)
         user.is_superuser = True
         user.is_staff = True
-        user.role = "admin"
         user.save()
         return user
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    COURIER = "courier"
-    CUSTOMER = "customer"
+    RUNNER = "runner"
+    PATRON = "patron"
     VENDOR = "vendor"
-    ADMIN = "admin"
     ROLE_CHOICES = {
-        COURIER: "Courier",
-        CUSTOMER: "Customer",
+        RUNNER: "runner",
+        PATRON: "patron",
         VENDOR: "Vendor",
-        ADMIN: "Admin",
     }
     username = models.CharField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
@@ -51,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(
         max_length=255, blank=True)
     role = models.CharField(
-        max_length=255, choices=ROLE_CHOICES, default="customer")
+        max_length=255, choices=ROLE_CHOICES, default="patron")
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     USERNAME_FIELD = "username"
@@ -66,26 +63,27 @@ class Restaurant(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="vendor")
 
 
-class MenuItem(models.Model):
+class RestaurantItem(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00)
     restaurant = models.ForeignKey(
-        Restaurant, on_delete=models.CASCADE, related_name="menu_items")
+        Restaurant, on_delete=models.CASCADE, related_name="restaurant_item")
 
 
 class Cart(models.Model):
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00)
-    customer = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="customer")
+    patron = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="patron")
     restaurant = models.OneToOneField(
         Restaurant, on_delete=models.CASCADE, related_name="restaurant")
 
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    menu_item = models.OneToOneField(MenuItem, on_delete=models.CASCADE)
+    restaurant_item = models.OneToOneField(
+        RestaurantItem, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
 
 
@@ -101,5 +99,14 @@ class Order(models.Model):
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=100, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    courier = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="courier")
+    runner = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="runner")
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    restaurant_item = models.OneToOneField(
+        RestaurantItem, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00)
