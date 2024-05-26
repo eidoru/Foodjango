@@ -1,11 +1,20 @@
+import axios from "axios";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 
-function LoginPage() {
+function SignInPage() {
   const { register, handleSubmit } = useForm();
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
 
   function onSubmit(data) {
-    console.log(data);
+    axios.post("http://localhost:8000/api/signin/", data).then((response) => {
+      if (response.data.status === true) {
+        setToken(response.data.token);
+        navigate("/", { replace: true });
+      }
+    });
   }
 
   return (
@@ -41,14 +50,14 @@ function LoginPage() {
             type="submit"
             className="w-full rounded-md bg-green-600 py-2 text-sm font-semibold text-white transition-all hover:bg-green-700 active:bg-green-800"
           >
-            Log in
+            Sign in
           </button>
         </form>
         <p className="mt-10 block text-center text-sm text-gray-500">
           Don&apos;t have an account?{" "}
-          <Link to="/register">
+          <Link to="/signup">
             <span className="cursor-pointer font-semibold text-green-600 hover:text-green-700 active:text-green-800">
-              Register
+              Sign up
             </span>
           </Link>
         </p>
@@ -57,4 +66,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SignInPage;

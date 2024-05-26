@@ -1,11 +1,15 @@
+import axios from "axios";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function RegisterPage() {
+function SignUpPage() {
   const { register, handleSubmit } = useForm();
+  const navigate = useNavigate();
 
   function onSubmit(data) {
-    console.log(data);
+    axios.post("http://localhost:8000/api/signup/", data).then(() => {
+      navigate("/signin", { replace: true });
+    });
   }
 
   return (
@@ -17,24 +21,24 @@ function RegisterPage() {
         >
           <div className="flex justify-between gap-x-6">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium">
+              <label htmlFor="first_name" className="block text-sm font-medium">
                 First name
               </label>
               <input
                 type="text"
-                id="firstName"
-                {...register("firstName", { required: true })}
+                id="first_name"
+                {...register("first_name", { required: true })}
                 className="mt-2 w-full rounded-md px-2.5 py-2 text-sm outline-none ring-1 ring-inset ring-gray-300 transition-all focus:ring-2 focus:ring-green-600"
               />
             </div>
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium">
+              <label htmlFor="last_name" className="block text-sm font-medium">
                 Last name
               </label>
               <input
                 type="text"
-                id="lastName"
-                {...register("lastName", { required: true })}
+                id="last_name"
+                {...register("last_name", { required: true })}
                 className="mt-2 w-full rounded-md px-2.5 py-2 text-sm outline-none ring-1 ring-inset ring-gray-300 transition-all focus:ring-2 focus:ring-green-600"
               />
             </div>
@@ -61,18 +65,29 @@ function RegisterPage() {
               className="mt-2 w-full rounded-md px-2.5 py-2 text-sm outline-none ring-1 ring-inset ring-gray-300 transition-all focus:ring-2 focus:ring-green-600"
             />
           </div>
+          <div>
+            <label htmlFor="role" className="block text-sm font-medium">
+              Role
+            </label>
+            <input
+              type="text"
+              id="role"
+              {...register("role", { required: true })}
+              className="mt-2 w-full rounded-md px-2.5 py-2 text-sm outline-none ring-1 ring-inset ring-gray-300 transition-all focus:ring-2 focus:ring-green-600"
+            />
+          </div>
           <button
             type="submit"
             className="w-full rounded-md bg-green-600 py-2 text-sm font-semibold text-white transition-all hover:bg-green-700 active:bg-green-800"
           >
-            Register
+            Sign up
           </button>
         </form>
         <p className="mt-10 block text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link to="/login">
+          <Link to="/signin">
             <span className="cursor-pointer font-semibold text-green-600 hover:text-green-700 active:text-green-800">
-              Login
+              Sign in
             </span>
           </Link>
         </p>
@@ -81,4 +96,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default SignUpPage;
